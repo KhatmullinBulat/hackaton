@@ -1,0 +1,54 @@
+<template>
+  <div class="size-full animated-bg">
+    <div
+      class="blob"
+      style="background: #60a5fa; top: 10%; left: 15%; animation-delay: 0s"
+    />
+    <div
+      class="blob"
+      style="background: #34d399; top: 50%; left: 60%; animation-delay: 5s"
+    />
+    <div
+      class="blob"
+      style="background: #f472b6; top: 20%; left: 70%; animation-delay: 10s"
+    />
+
+    <div class="size-full flex gap-8">
+      <SidebarNav />
+    </div>
+  </div>
+</template>
+
+<style>
+.animated-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.blob {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.6;
+  animation: float 15s infinite ease-in-out;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -60px) scale(1.2);
+  }
+  66% {
+    transform: translate(-40px, 40px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+</style>

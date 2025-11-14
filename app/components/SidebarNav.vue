@@ -1,0 +1,76 @@
+<script setup lang="ts">
+import ArrowIcon from "~/components/icons/ArrowIcon.vue";
+import PlusIcon from "~/components/icons/PlusIcon.vue";
+import SettingsIcon from "~/components/icons/SettingsIcon.vue";
+</script>
+
+<template>
+  <div class="max-w-[400px] h-full flex flex-col gap-6 p-8">
+    <UCard
+      :ui="{
+        body: 'p-4 sm:p-4',
+      }"
+    >
+      <div class="flex justify-between items-center">
+        <UUser
+          size="xl"
+          name="Test"
+          :avatar="{
+            src: 'https://i.pravatar.cc/150?u=john-doe',
+            icon: 'i-lucide-image',
+          }"
+        />
+        <UButton :icon="SettingsIcon" color="neutral" />
+      </div>
+    </UCard>
+
+    <UCard
+      class="h-full"
+      :ui="{
+        body: 'h-full flex flex-col',
+      }"
+    >
+      <UInput
+        icon="i-lucide-search"
+        size="xl"
+        placeholder="Поиск"
+        class="w-full mb-4"
+      />
+
+      <div class="w-full px-1 mb-4">
+        <div class="flex items-center justify-between w-full mb-3">
+          <p class="text-xl">Папки</p>
+
+          <div class="flex gap-2">
+            <UButton :icon="PlusIcon" color="neutral" size="xs" />
+            <UButton :icon="ArrowIcon" color="neutral" size="xs" />
+          </div>
+        </div>
+
+        <div class="max-h-[246px] overflow-y-auto rounded-md">
+          <div class="flex flex-col gap-2.5 p-1">
+            <FolderCard v-for="card in 4" :key="card" />
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full px-2 mb-auto">
+        <div class="flex items-center justify-between w-full mb-3">
+          <p class="text-xl">Чаты</p>
+
+          <UButton :icon="ArrowIcon" color="neutral" size="xs" />
+        </div>
+
+        <div class="max-h-[246px] overflow-y-auto rounded-md">
+          <div class="flex flex-col gap-2.5 p-1">
+            <ChatCard v-for="card in 8" :key="card" />
+          </div>
+        </div>
+      </div>
+
+      <UButton size="xl" :trailing-icon="PlusIcon" class="justify-between">
+        Новый чат
+      </UButton>
+    </UCard>
+  </div>
+</template>

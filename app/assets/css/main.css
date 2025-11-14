@@ -1,0 +1,21 @@
+html,
+body,
+#__nuxt,
+#__app {
+  height: 100%;
+}
+
+/* Кастомный скроллбар */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px; /* Ширина */
+}
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: var(--ui-bg); /* Фон трека */
+}
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #718096; /* Цвет ползунка */
+  border-radius: 4px;
+}
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #4a5568; /* Hover */
+}
