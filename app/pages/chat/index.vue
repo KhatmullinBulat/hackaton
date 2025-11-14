@@ -15,6 +15,8 @@
 
     <div class="size-full flex gap-8">
       <SidebarNav />
+
+      <MainChat />
     </div>
   </div>
 </template>
