@@ -6,9 +6,10 @@ export interface RefreshResponse {
 }
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.authBase}/auth/refresh`;
 
-  const targetUrl = "http://localhost:8080/auth/refresh";
+  const body = await readBody(event);
 
   try {
     const response = await $fetch<RefreshResponse>(targetUrl, {

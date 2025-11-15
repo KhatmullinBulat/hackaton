@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BotIcon from "./icons/BotIcon.vue";
-import UploadIcon from "./icons/UploadIcon.vue";
+// import UploadIcon from "./icons/UploadIcon.vue";
 
 type ChatRole = "user" | "assistant" | "system";
 
@@ -15,13 +15,10 @@ type ChatMessage = {
   parts: ChatPart[];
 };
 
-// const mode = ref<"text" | "voice">("text");
-// const isRecording = ref(false);
-// const mediaRecorder = ref<MediaRecorder | null>(null);
-// const audioChunks: Blob[] = [];
+const isVoiceMode = defineModel<boolean>();
 
 const { userId } = useAuthApi();
-const { sendMessage, selectedChat, getChat } = useGptApi();
+const { sendMessage, selectedChat, getChat, createChat } = useGptApi();
 
 const inputText = ref("");
 const pending = ref(false);
@@ -36,7 +33,16 @@ const messageStatus = computed(() => {
 });
 
 const handleSubmit = async () => {
-  if (!userId.value || !selectedChat.value) return;
+  if (!userId.value) return;
+
+  if (!selectedChat.value) {
+    const payload: ChatCreatePayload = {
+      user_id: userId.value,
+      title: inputText.value.slice(0, 20),
+    };
+
+    await createChat(payload);
+  }
 
   messages.value.push({
     id: crypto.randomUUID(),
@@ -52,23 +58,15 @@ const handleSubmit = async () => {
   error.value = null;
 
   try {
-    const {
-      data,
-      error: fetchError,
-      execute,
-    } = sendMessage({
+    if (!selectedChat.value) return;
+
+    const response = await sendMessage({
       user_id: userId.value,
       chat_id: selectedChat.value?.id,
       message: inputText.value,
     });
 
-    await execute();
-
     inputText.value = "";
-
-    if (fetchError.value) {
-      throw fetchError.value;
-    }
 
     messages.value.push({
       id: crypto.randomUUID(),
@@ -76,7 +74,7 @@ const handleSubmit = async () => {
       parts: [
         {
           type: "text",
-          text: data.value?.reply || "",
+          text: response.reply || "",
         },
       ],
     });
@@ -142,9 +140,9 @@ watch(selectedChat, async (newSelectedChat, oldSelectedChat) => {
         <img v-show="pending" src="/sonic-running.gif" width="61.5px" />
       </div>
 
-      <button class="cursor-pointer">
+      <!-- <button class="cursor-pointer">
         <UploadIcon />
-      </button>
+      </button> -->
     </div>
 
     <Transition name="fade" mode="out-in" appear>
@@ -185,7 +183,12 @@ watch(selectedChat, async (newSelectedChat, oldSelectedChat) => {
       >
         <div class="flex gap-2">
           <UChatPromptSubmit />
-          <UButton :disabled="pending" icon="lucide:mic" color="secondary" />
+          <UButton
+            :disabled="pending"
+            icon="lucide:mic"
+            color="secondary"
+            @click="isVoiceMode = true"
+          />
         </div>
       </UChatPrompt>
     </div>

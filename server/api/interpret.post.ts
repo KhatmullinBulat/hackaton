@@ -4,9 +4,10 @@ interface GptResponse {
 }
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.aiBase}/ai/interpret`;
 
-  const targetUrl = "http://127.0.0.1:9090/ai/interpret";
+  const body = await readBody(event);
 
   try {
     const response = await $fetch<GptResponse>(targetUrl, {

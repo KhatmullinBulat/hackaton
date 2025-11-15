@@ -6,9 +6,10 @@ export interface RegisterResponse {
 }
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.authBase}/auth/register`;
 
-  const targetUrl = "http://localhost:8080/auth/register";
+  const body = await readBody(event);
 
   try {
     const response = await $fetch<RegisterResponse>(targetUrl, {

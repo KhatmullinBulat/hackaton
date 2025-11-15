@@ -7,8 +7,10 @@ interface Chat {
 }
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.aiBase}/chats`;
+
   const query = getQuery(event);
-  const targetUrl = "http://127.0.0.1:9090/chats";
 
   try {
     const response = await $fetch<Chat>(targetUrl, {

@@ -12,7 +12,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       api: {
-        base: process.env.API_BASE || "https://auth-service.example.com/api",
+        authBase: process.env.AUTH_BASE_URL || "https://hackathon-sonnik.ru",
+        aiBase: process.env.AI_BASE_URL || "https://hackathon-sonnik.ru/ai",
       },
     },
   },

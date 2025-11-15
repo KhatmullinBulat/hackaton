@@ -1,3 +1,9 @@
+<script setup lang="ts">
+import VoiceChat from "~/components/VoiceChat.vue";
+
+const isVoiceMode = ref(false);
+</script>
+
 <template>
   <div class="size-full animated-bg">
     <div
@@ -14,9 +20,10 @@
     />
 
     <div class="size-full flex gap-8 z-10">
-      <SidebarNav />
+      <SidebarNav v-model="isVoiceMode" />
 
-      <MainChat />
+      <MainChat v-show="!isVoiceMode" v-model="isVoiceMode" />
+      <VoiceChat v-show="isVoiceMode" v-model="isVoiceMode" />
     </div>
   </div>
 </template>

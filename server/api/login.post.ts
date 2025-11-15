@@ -6,9 +6,10 @@ export interface LoginResponse {
 }
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.authBase}/auth/login`;
 
-  const targetUrl = "http://localhost:8090/auth/login";
+  const body = await readBody(event);
 
   try {
     const response = await $fetch<LoginResponse>(targetUrl, {

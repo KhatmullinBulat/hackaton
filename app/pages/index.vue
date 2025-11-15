@@ -137,7 +137,7 @@ onUnmounted(() => {
           class="mx-4 flex place-items-center gap-[20px] text-base max-md:w-full max-md:flex-col max-md:place-content-center"
         >
           <a
-            href=""
+            href="/chat"
             aria-label="signup"
             class="rounded-full bg-secondary px-3 py-2 text-white transition-transform duration-[0.3s] hover:translate-x-2"
           >
@@ -184,7 +184,7 @@ onUnmounted(() => {
           >
             <a
               class="btn transition-transform duration-[0.3s] hover:scale-x-[1.03]"
-              href=""
+              href="/chat"
             >
               Начать
             </a>
@@ -206,7 +206,7 @@ onUnmounted(() => {
             class="flex max-h-[750px] min-h-[450px] w-full min-w-[350px] max-w-[950px] rounded-2xl overflow-hidden shadow-xl shadow-[#443e437c] max-lg:h-fit max-lg:max-h-[320px] max-lg:min-h-[150px] max-lg:w-[320px]"
           >
             <img
-              src="/home/dashboard.png"
+              src="/sonic.png"
               alt="dashboard"
               class="h-full w-full object-cover max-lg:object-contain"
             />
@@ -221,20 +221,65 @@ onUnmounted(() => {
         Нам доверяют известные вам бренды
       </h2>
 
-      <!-- <div class="reveal-up carousel-container">
+      <div class="reveal-up carousel-container">
         <div
           class="carousel mt-6 flex w-full lg:w-place-content-center gap-5 max-md:gap-2"
         >
           <div class="carousel-img h-[30px] w-[150px]">
             <img
-              src="/images/brand-logos/google.svg"
+              src="/brand-logos/google.svg"
+              alt="Google"
+              class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
+              srcset=""
+            />
+          </div>
+
+          <div class="carousel-img h-[30px] w-[150px]">
+            <img
+              src="/brand-logos/adobe.svg"
+              alt="Google"
+              class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
+              srcset=""
+            />
+          </div>
+
+          <div class="carousel-img h-[30px] w-[150px]">
+            <img
+              src="/brand-logos/airbnb.svg"
+              alt="Google"
+              class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
+              srcset=""
+            />
+          </div>
+
+          <div class="carousel-img h-[30px] w-[150px]">
+            <img
+              src="/brand-logos/microsoft.svg"
+              alt="Google"
+              class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
+              srcset=""
+            />
+          </div>
+
+          <div class="carousel-img h-[30px] w-[150px]">
+            <img
+              src="/brand-logos/reddit.svg"
+              alt="Google"
+              class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
+              srcset=""
+            />
+          </div>
+
+          <div class="carousel-img h-[30px] w-[150px]">
+            <img
+              src="/brand-logos/stripe.svg"
               alt="Google"
               class="h-full w-full object-contain grayscale transition-colors hover:grayscale-0"
               srcset=""
             />
           </div>
         </div>
-      </div> -->
+      </div>
     </section>
     <section
       class="relative flex w-full min-h-[80vh] max-w-[100vw] flex-col place-content-center place-items-center overflow-hidden p-6"
@@ -247,7 +292,7 @@ onUnmounted(() => {
             class="max-h-[650px] max-w-[850px] overflow-hidden rounded-lg shadow-lg shadow-[rgba(170,49,233,0.44021358543417366)]"
           >
             <img
-              src="/home/coding.png"
+              src="/sonic.png"
               alt="coding"
               class="h-full w-full object-cover"
             />
@@ -759,7 +804,7 @@ onUnmounted(() => {
             class="input h-full w-full p-2 outline-none"
             placeholder="почта"
           />
-          <a class="btn transition-colors duration-[0.3s]" href="">
+          <a class="btn transition-colors duration-[0.3s]" href="/register">
             Зарегистрироваться
           </a>
         </div>

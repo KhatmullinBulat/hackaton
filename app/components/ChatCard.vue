@@ -46,9 +46,9 @@ async function handleRename() {
       root: 'w-full max-w-lg rounded-xl',
       body: 'p-3 sm:p-3',
     }"
-    class="hover:bg-blue-100 transition-colors"
+    class="transition-colors hover:bg-blue-100 dark:hover:bg-white/10"
   >
-    <div class="flex justify-between items-center">
+    <div class="flex justify-between items-center gap-3">
       <div class="flex items-center gap-2">
         <ChatIcon />
 

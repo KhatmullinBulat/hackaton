@@ -2,10 +2,24 @@
 import ArrowIcon from "~/components/icons/ArrowIcon.vue";
 import PlusIcon from "~/components/icons/PlusIcon.vue";
 import SettingsIcon from "~/components/icons/SettingsIcon.vue";
-import type { ChatCreatePayload } from "~/composables/useGptApi";
+import type {
+  ChatCreatePayload,
+  FolderCreatePayload,
+  FoldersGetPayload,
+} from "~/composables/useGptApi";
+
+const isVoiceMode = defineModel<boolean>();
 
 const { userId } = useAuthApi();
-const { getChats, chats, createChat, selectedChat } = useGptApi();
+const {
+  getChats,
+  chats,
+  createChat,
+  selectedChat,
+  createFolder,
+  getFolders,
+  folders,
+} = useGptApi();
 
 const pending = ref(false);
 const error = ref<string | null>(null);
@@ -13,6 +27,10 @@ const toast = useToast();
 
 const isFoldersCollapse = ref<boolean>(false);
 const isChatsCollapse = ref<boolean>(false);
+
+const isFolderModalOpen = ref(false);
+const folderCreateInputModel = ref("");
+const chatCreateInputModel = ref("");
 
 function toggleFoldersCollapse() {
   isFoldersCollapse.value = !isFoldersCollapse.value;
@@ -27,6 +45,47 @@ function selectChat(id: string) {
 
   if (!chat) return;
   selectedChat.value = chat;
+
+  isVoiceMode.value = false;
+}
+
+async function handleCreateFolder() {
+  if (!userId.value) {
+    error.value = "Отсутствует ID пользователя.";
+    return;
+  }
+
+  try {
+    const payload: FolderCreatePayload = {
+      user_id: userId.value,
+      title: folderCreateInputModel.value,
+    };
+
+    const folder = await createFolder(payload);
+
+    const chatPayload: ChatCreatePayload = {
+      user_id: userId.value,
+      title: chatCreateInputModel.value,
+      folder_id: folder.id,
+    };
+
+    const chat = await createChat(chatPayload);
+
+    isVoiceMode.value = false;
+
+    isFolderModalOpen.value = false;
+    console.log("Список папок получен:", folder, chat);
+  } catch (e: unknown) {
+    console.error("Ошибка при получении папок:", e);
+    error.value = e as string;
+    toast.add({
+      color: "error",
+      title: "Ошибка",
+      description: error.value,
+    });
+  } finally {
+    pending.value = false;
+  }
 }
 
 async function handleCreateChat() {
@@ -35,20 +94,44 @@ async function handleCreateChat() {
     return;
   }
   try {
-    // 1. Подготовить payload
     const payload: ChatCreatePayload = {
       user_id: userId.value,
-      title: "test",
+      title: "Новый сон",
     };
 
-    // 2. Вызвать getChats и дождаться результата
     const chat = await createChat(payload);
 
+    isVoiceMode.value = false;
+
     console.log("Список чатов получен:", chat);
-    // UI обновляется автоматически через reactive state в composable
-    // chats.value в useGptApi теперь содержит список
   } catch (e: unknown) {
     console.error("Ошибка при получении чатов:", e);
+    error.value = e as string;
+    toast.add({
+      color: "error",
+      title: "Ошибка",
+      description: error.value,
+    });
+  } finally {
+    pending.value = false;
+  }
+}
+
+async function handleGetFolders() {
+  if (!userId.value) {
+    error.value = "Отсутствует ID пользователя.";
+    return;
+  }
+  try {
+    const payload: FoldersGetPayload = {
+      user_id: userId.value,
+    };
+
+    const folderList = await getFolders(payload);
+
+    console.log("Список чатов получен:", folderList);
+  } catch (e: unknown) {
+    console.error("Ошибка при получении папок:", e);
     error.value = e as string;
     toast.add({
       color: "error",
@@ -92,6 +175,7 @@ async function handleGetChats() {
 
 onMounted(() => {
   handleGetChats();
+  handleGetFolders();
 });
 </script>
 
@@ -144,12 +228,42 @@ onMounted(() => {
           <p class="text-xl">Папки</p>
 
           <div class="flex gap-2">
-            <UButton
-              :icon="PlusIcon"
-              color="neutral"
-              size="xs"
-              class="cursor-pointer"
-            />
+            <UModal v-model:open="isFolderModalOpen" title="Создание папки">
+              <UButton
+                :icon="PlusIcon"
+                color="neutral"
+                size="xs"
+                class="cursor-pointer"
+              />
+
+              <template #body>
+                <div class="flex flex-col gap-4">
+                  <UInput
+                    v-model="folderCreateInputModel"
+                    size="xl"
+                    placeholder="Введите название папки"
+                  />
+
+                  <UInput
+                    v-model="chatCreateInputModel"
+                    size="xl"
+                    placeholder="Введите название чата"
+                  />
+
+                  <UButton
+                    :disabled="
+                      folderCreateInputModel.length === 0 ||
+                      chatCreateInputModel.length === 0
+                    "
+                    class="w-max"
+                    @click="handleCreateFolder"
+                  >
+                    Создать
+                  </UButton>
+                </div>
+              </template>
+            </UModal>
+
             <UButton
               :icon="ArrowIcon"
               color="neutral"
@@ -168,16 +282,21 @@ onMounted(() => {
             style="scrollbar-gutter: stable"
           >
             <div class="flex flex-col gap-2.5 p-1">
-              <FolderCard v-for="card in 4" :key="card" />
+              <FolderCard
+                v-for="card in folders"
+                :id="card.id"
+                :key="card.id"
+                :title="card.title"
+                :is-modal-open="isFolderModalOpen"
+              />
             </div>
           </div>
         </Transition>
       </div>
 
-      <div class="w-full px-2 mb-auto">
+      <div class="w-full px-2 flex-1 min-h-0 flex flex-col mb-12">
         <div class="flex items-center justify-between w-full mb-3">
           <p class="text-xl">Чаты</p>
-
           <UButton
             :icon="ArrowIcon"
             color="neutral"
@@ -189,9 +308,14 @@ onMounted(() => {
         </div>
 
         <Transition name="collapse" mode="out-in">
+          <!-- 
+            ИЗМЕНЕНИЕ 2: Сам список чатов.
+            - Убираем 'max-h-[260px]'.
+            - Добавляем 'h-full', чтобы он заполнил всю высоту своего нового "растягиваемого" родителя.
+          -->
           <div
             v-show="!isChatsCollapse"
-            class="max-h-[246px] overflow-y-auto rounded-md"
+            class="h-full overflow-y-auto rounded-md"
             style="scrollbar-gutter: stable"
           >
             <div class="flex flex-col gap-2.5 p-1">

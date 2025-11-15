@@ -1,21 +1,19 @@
-interface Chat {
+interface Folder {
   id: string;
   title: string;
-  folder_id: string;
   created_at: string;
-  updated_at: string;
 }
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
-  const targetUrl = `${config.public.api.aiBase}/chats`;
+  const targetUrl = `${config.public.api.aiBase}/folders`;
 
-  const body = await readBody(event);
+  const query = getQuery(event);
 
   try {
-    const response = await $fetch<Chat>(targetUrl, {
-      method: "POST",
-      body: body,
+    const response = await $fetch<Folder>(targetUrl, {
+      method: "GET",
+      params: query,
       headers: {
         "Content-Type": "application/json",
       },

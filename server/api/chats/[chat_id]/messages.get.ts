@@ -16,8 +16,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const config = useRuntimeConfig(event);
+  const targetUrl = `${config.public.api.aiBase}/chats/${chatId}/messages`;
+
   const query = getQuery(event);
-  const targetUrl = `http://127.0.0.1:9090/chats/${chatId}/messages`;
 
   try {
     const response = await $fetch<Chat>(targetUrl, {

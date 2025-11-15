@@ -1,6 +1,6 @@
 export interface TtsPayload {
   text: string;
-  voice_id: string;
+  voice_id?: string;
   model_id?: string;
   output_format?: string;
 }
@@ -9,7 +9,7 @@ export type TtsResponse = ArrayBuffer;
 
 // === ASR ===
 export interface AsrPayload {
-  file: File;
+  file: File | Blob;
   language?: string;
   prompt?: string;
 }
@@ -29,6 +29,10 @@ export interface ChatsGetPayload {
   folder_id?: string;
 }
 
+export interface FoldersGetPayload {
+  user_id: string;
+}
+
 export interface ChatGetPayload {
   chat_id: string;
   user_id: string;
@@ -39,6 +43,11 @@ export interface ChatCreatePayload {
   user_id: string;
   title: string;
   folder_id?: string;
+}
+
+export interface FolderCreatePayload {
+  user_id: string;
+  title: string;
 }
 
 export interface ChatMessage {
@@ -63,14 +72,21 @@ export interface Chat {
   updated_at: string;
 }
 
+export interface Folder {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 export const useGptApi = () => {
+  const folders = useState<Folder[] | null>("folders", () => null);
   const chats = useState<Chat[] | null>("chats", () => null);
+  const selectedChats = useState<Chat[] | null>("selected-chats", () => null);
   const selectedChat = useState<Chat | null>("chat", () => null);
   const sendMessage = (payload: RequestPayload) => {
-    return useFetch<GptResponse>("/api/interpret", {
+    return $fetch<GptResponse>("/api/interpret", {
       method: "POST",
       body: payload,
-      immediate: false,
     });
   };
 
@@ -81,7 +97,19 @@ export const useGptApi = () => {
     });
 
     selectedChat.value = response;
-    chats.value?.push(response);
+
+    getChats({ user_id: payload.user_id });
+
+    return response;
+  }
+
+  async function createFolder(payload: FolderCreatePayload) {
+    const response = await $fetch<Folder>("/api/folders", {
+      method: "POST",
+      body: payload,
+    });
+
+    folders.value?.push(response);
 
     return response;
   }
@@ -92,7 +120,22 @@ export const useGptApi = () => {
       query: payload,
     });
 
-    chats.value = response;
+    if (payload.folder_id) {
+      selectedChats.value = response;
+    } else {
+      chats.value = response;
+    }
+
+    return response;
+  }
+
+  async function getFolders(payload: FoldersGetPayload) {
+    const response = await $fetch<Folder[]>("/api/folders", {
+      method: "GET",
+      query: payload,
+    });
+
+    folders.value = response;
 
     return response;
   }
@@ -144,25 +187,52 @@ export const useGptApi = () => {
   }
 
   async function tts(payload: TtsPayload): Promise<TtsResponse> {
-    const arrayBuffer = await $fetch<ArrayBuffer>("/api/tts", {
-      method: "POST",
-      body: payload,
-      responseType: "arrayBuffer",
-    });
+    try {
+      const response = await $fetch<ReadableStream>("/api/tts", {
+        method: "POST",
+        body: payload,
+        responseType: "stream",
+      });
 
-    return arrayBuffer;
+      const reader = response.getReader();
+      const chunks: Uint8Array[] = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          chunks.push(value);
+        }
+      }
+
+      // Собираем чанки в один Uint8Array
+      const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+      const combined = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        combined.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      // Возвращаем как ArrayBuffer (TtsResponse предположительно ArrayBuffer)
+      return combined.buffer;
+    } catch (error) {
+      console.error("Ошибка TTS стрима:", error);
+      throw error; // Или верните fallback, если нужно
+    }
   }
 
   async function asr(payload: AsrPayload): Promise<AsrResponse> {
     const form = new FormData();
-    form.append("file", payload.file);
-
-    if (payload.language) form.append("language", payload.language);
-    if (payload.prompt) form.append("prompt", payload.prompt);
+    form.append("audio", payload.file, "audio.webm");
 
     return await $fetch<AsrResponse>("/api/asr", {
       method: "POST",
       body: form,
+      query: {
+        language: payload.language,
+        prompt: payload.prompt,
+      },
     });
   }
 
@@ -201,12 +271,17 @@ export const useGptApi = () => {
 
   return {
     chats,
+    folders,
     selectedChat,
+    selectedChats,
     sendMessage,
     createChat,
     getChats,
     getChat,
     renameChat,
+
+    getFolders,
+    createFolder,
 
     tts,
     asr,
