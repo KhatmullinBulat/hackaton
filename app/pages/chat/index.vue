@@ -13,7 +13,7 @@
       style="background: #f472b6; top: 20%; left: 70%; animation-delay: 10s"
     />
 
-    <div class="size-full flex gap-8">
+    <div class="size-full flex gap-8 z-10">
       <SidebarNav />
 
       <MainChat />
@@ -33,6 +33,7 @@
   position: absolute;
   width: 300px;
   height: 300px;
+  pointer-events: none;
   border-radius: 50%;
   filter: blur(60px);
   opacity: 0.6;

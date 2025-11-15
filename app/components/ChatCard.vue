@@ -17,7 +17,7 @@ import MoreIcon from "./icons/MoreIcon.vue";
         <p class="text-xl truncate">Чат</p>
       </div>
 
-      <MoreIcon />
+      <MoreIcon class="cursor-pointer" />
     </div>
   </UCard>
 </template>
