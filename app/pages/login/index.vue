@@ -2,10 +2,6 @@
 import * as z from "zod";
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
 
-// interface ITokenResponse {
-//   token: string;
-// }
-
 const toast = useToast();
 
 const fields: AuthFormField[] = [
@@ -49,35 +45,46 @@ const schema = z.object({
 
 type Schema = z.output<typeof schema>;
 
-async function onSubmit(payload: FormSubmitEvent<Schema>) {
-  // const { data, error } = await useFetch<ITokenResponse>("/api/auth/login", {
-  //   method: "POST",
-  //   body: payload.data,
-  // });
+const { login } = useAuthApi();
 
-  // if (error.value) {
-  //   console.error("Login failed:", error.value);
-  //   toast.add({
-  //     title: "Ошибка",
-  //     description: "Попробуйте снова.",
-  //     color: "error",
-  //   });
-  //   return;
-  // }
+const pending = ref(false);
+const error = ref<unknown | null>(null);
 
-  navigateTo("/chat");
+const handleSubmit = async (payload: FormSubmitEvent<Schema>) => {
+  pending.value = true;
+  error.value = null;
 
-  // if (data.value?.token) {
-  //   localStorage.setItem("jwtToken", data.value.token);
-  //   navigateTo("/chat");
-  // } else {
-  //   toast.add({
-  //     title: "Ошибка",
-  //     description: "Неверный ответ от сервера.",
-  //     color: "error",
-  //   });
-  // }
-}
+  try {
+    // ШАГ 1: Получаем экземпляр useFetch с его состоянием и функцией execute.
+    // Важно: sendMessage НЕ должна быть async (исправим это в следующем шаге).
+    const response = await login({
+      email: payload.data.email,
+      password: payload.data.password,
+    });
+
+    if (response) {
+      toast.add({
+        color: "success",
+        title: "Успешный вход!",
+      });
+      navigateTo("/chat");
+    } else {
+      // Handle unexpected response structure if needed
+      throw new Error("В ответе на вход отсутствуют обязательные поля");
+    }
+  } catch (e: unknown) {
+    console.error("Registration error:", e);
+    // e будет содержать ошибку из fetchError.value или другую ошибку сети.
+    error.value = e;
+    toast.add({
+      color: "error",
+      title: "Что-то пошло не так.",
+      description: error.value as string,
+    });
+  } finally {
+    pending.value = false;
+  }
+};
 </script>
 
 <template>
@@ -90,13 +97,19 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
         icon="i-lucide-user"
         :fields="fields"
         :providers="providers"
-        @submit="onSubmit"
+        @submit="handleSubmit"
       >
         <template #submit>
           <UFieldGroup class="w-full flex justify-center">
-            <UButton type="submit" color="primary"> Продолжить </UButton>
-            <UButton color="secondary" @click="navigateTo('/register')">
-              Регистрация
+            <UButton type="submit" color="primary" class="w-full">
+              <p class="text-center w-full">Продолжить</p>
+            </UButton>
+            <UButton
+              color="secondary"
+              class="w-full"
+              @click="navigateTo('/register')"
+            >
+              <p class="text-center w-full">Регистрация</p>
             </UButton>
           </UFieldGroup>
         </template>

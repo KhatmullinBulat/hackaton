@@ -1,89 +1,106 @@
 <script setup lang="ts">
-interface ITokenResponse {
-  token: string;
-}
+import type { AuthFormField, FormSubmitEvent } from "@nuxt/ui";
+import z from "zod";
 
 const toast = useToast();
 
-const form = reactive({ email: "", password: "" });
+const fields: AuthFormField[] = [
+  {
+    name: "email",
+    type: "email",
+    label: "Почта",
+    placeholder: "Введите свою почту",
+    required: true,
+  },
+  {
+    name: "password",
+    type: "password",
+    label: "Пароль",
+    placeholder: "Введите свой пароль",
+    required: true,
+  },
+];
 
-async function register() {
-  const { data, error } = await useFetch<ITokenResponse>("/api/auth/login", {
-    method: "POST",
-    body: form,
-  });
+const schema = z.object({
+  email: z.email("Неверный адрес электронной почты"),
+  password: z
+    .string("Требуется пароль")
+    .min(8, "Должно быть не менее 8 символов."),
+});
 
-  if (error.value) {
-    console.error("Login failed:", error.value);
-    toast.add({
-      title: "Ошибка",
-      description: "Попробуйте снова.",
-      color: "error",
+type Schema = z.output<typeof schema>;
+
+const { register } = useAuthApi();
+
+const pending = ref(false);
+const error = ref<unknown | null>(null);
+
+const handleSubmit = async (payload: FormSubmitEvent<Schema>) => {
+  pending.value = true;
+  error.value = null;
+
+  try {
+    // ШАГ 1: Получаем экземпляр useFetch с его состоянием и функцией execute.
+    // Важно: sendMessage НЕ должна быть async (исправим это в следующем шаге).
+    const response = await register({
+      email: payload.data.email,
+      password: payload.data.password,
     });
-    return;
-  }
 
-  if (data.value?.token) {
-    localStorage.setItem("jwtToken", data.value.token);
-    navigateTo("/");
-  } else {
+    if (response && response.AccessToken) {
+      toast.add({
+        color: "success",
+        title: "Успешная регистрация!",
+      });
+      navigateTo("/chat");
+    } else {
+      // Handle unexpected response structure if needed
+      throw new Error("В ответе на регистрацию отсутствуют обязательные поля");
+    }
+  } catch (e: unknown) {
+    console.error("Registration error:", e);
+    // e будет содержать ошибку из fetchError.value или другую ошибку сети.
+    error.value = e;
     toast.add({
-      title: "Ошибка",
-      description: "Неверный ответ от сервера.",
       color: "error",
+      title: "Что-то пошло не так.",
+      description: error.value as string,
     });
+  } finally {
+    pending.value = false;
   }
-}
+};
 </script>
 
 <template>
-  <div
-    class="min-h-dvh flex items-center justify-center bg-gray-50 dark:bg-gray-900"
-  >
-    <UCard class="w-full max-w-md shadow-xl rounded-2xl p-6 space-y-6">
-      <div class="text-center space-y-2 mb-6">
-        <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-          Регистрация
-        </h1>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">
-          Введите ваши данные для регистрации
-        </p>
-      </div>
+  <div class="size-full flex flex-col items-center justify-center gap-4 p-4">
+    <UPageCard class="w-full max-w-md">
+      <UAuthForm
+        :schema="schema"
+        title="Регистрация"
+        description="Введите свои учетные данные для регистрации."
+        icon="i-lucide-user"
+        :fields="fields"
+        @submit="handleSubmit"
+      >
+        <template #submit>
+          <UButton type="submit" color="primary" class="w-full">
+            Продолжить
+          </UButton>
+        </template>
 
-      <UForm :state="form" class="mb-8" @submit="register">
-        <UFormField label="Почта" size="xl" name="email" class="mb-3">
-          <UInput
-            v-model="form.email"
-            size="xl"
-            class="w-full"
-            placeholder="example@mail.com"
-          />
-        </UFormField>
-
-        <UFormField label="Пароль" size="xl" name="password" class="mb-6">
-          <UInput
-            v-model="form.password"
-            type="password"
-            size="xl"
-            class="w-full"
-            placeholder="••••••••"
-          />
-        </UFormField>
-
-        <UButton color="secondary" size="lg" class="w-full mb-3">
-          Регистрация
-        </UButton>
-
-        <NuxtLink
-          to="/login"
-          class="text-[12px] hover:text-blue-300 transition-colors"
-          >Уже есть аккаунт?</NuxtLink
-        >
-      </UForm>
-
-      <div class="text-center text-xs text-gray-400 dark:text-gray-500">
-        © {{ new Date().getFullYear() }} Биониклы
-      </div>
-    </UCard>
+        <template #footer>
+          <button
+            class="text-xs pl-2 mb-3 cursor-pointer hover:text-blue-500"
+            @click="navigateTo('/login')"
+          >
+            Уже есть аккаунт?
+          </button>
+          <div class="text-center text-xs text-gray-400 dark:text-gray-500">
+            © {{ new Date().getFullYear() }} Биониклы
+          </div>
+        </template>
+      </UAuthForm>
+    </UPageCard>
   </div>
 </template>

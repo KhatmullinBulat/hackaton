@@ -2,6 +2,14 @@
 import ArrowIcon from "~/components/icons/ArrowIcon.vue";
 import PlusIcon from "~/components/icons/PlusIcon.vue";
 import SettingsIcon from "~/components/icons/SettingsIcon.vue";
+import type { ChatCreatePayload } from "~/composables/useGptApi";
+
+const { userId } = useAuthApi();
+const { getChats, chats, createChat, selectedChat } = useGptApi();
+
+const pending = ref(false);
+const error = ref<string | null>(null);
+const toast = useToast();
 
 const isFoldersCollapse = ref<boolean>(false);
 const isChatsCollapse = ref<boolean>(false);
@@ -13,6 +21,78 @@ function toggleFoldersCollapse() {
 function toggleChatsCollapse() {
   isChatsCollapse.value = !isChatsCollapse.value;
 }
+
+function selectChat(id: string) {
+  const chat = chats.value?.find((chat) => chat.id === id);
+
+  if (!chat) return;
+  selectedChat.value = chat;
+}
+
+async function handleCreateChat() {
+  if (!userId.value) {
+    error.value = "Отсутствует ID пользователя.";
+    return;
+  }
+  try {
+    // 1. Подготовить payload
+    const payload: ChatCreatePayload = {
+      user_id: userId.value,
+      title: "test",
+    };
+
+    // 2. Вызвать getChats и дождаться результата
+    const chat = await createChat(payload);
+
+    console.log("Список чатов получен:", chat);
+    // UI обновляется автоматически через reactive state в composable
+    // chats.value в useGptApi теперь содержит список
+  } catch (e: unknown) {
+    console.error("Ошибка при получении чатов:", e);
+    error.value = e as string;
+    toast.add({
+      color: "error",
+      title: "Ошибка",
+      description: error.value,
+    });
+  } finally {
+    pending.value = false;
+  }
+}
+
+async function handleGetChats() {
+  if (!userId.value) {
+    error.value = "Отсутствует ID пользователя.";
+    return;
+  }
+  try {
+    // 1. Подготовить payload
+    const payload: ChatsGetPayload = {
+      user_id: userId.value,
+    };
+
+    // 2. Вызвать getChats и дождаться результата
+    const chatsList = await getChats(payload);
+
+    console.log("Список чатов получен:", chatsList);
+    // UI обновляется автоматически через reactive state в composable
+    // chats.value в useGptApi теперь содержит список
+  } catch (e: unknown) {
+    console.error("Ошибка при получении чатов:", e);
+    error.value = e as string;
+    toast.add({
+      color: "error",
+      title: "Ошибка",
+      description: error.value,
+    });
+  } finally {
+    pending.value = false;
+  }
+}
+
+onMounted(() => {
+  handleGetChats();
+});
 </script>
 
 <template>
@@ -115,7 +195,12 @@ function toggleChatsCollapse() {
             style="scrollbar-gutter: stable"
           >
             <div class="flex flex-col gap-2.5 p-1">
-              <ChatCard v-for="card in 8" :key="card" />
+              <ChatCard
+                v-for="card in chats"
+                :key="card.id"
+                :title="card.title"
+                @click="selectChat(card.id)"
+              />
             </div>
           </div>
         </Transition>
@@ -125,6 +210,7 @@ function toggleChatsCollapse() {
         size="xl"
         :trailing-icon="PlusIcon"
         class="justify-between cursor-pointer"
+        @click="handleCreateChat"
       >
         Новый чат
       </UButton>
