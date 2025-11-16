@@ -11,21 +11,24 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  try {
-    const response = await $fetch<RegisterResponse>(targetUrl, {
-      method: "POST",
-      body: body,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  const response = await $fetch<RegisterResponse>(targetUrl, {
+    method: "POST",
+    body,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    return response;
-  } catch (error) {
-    console.error("Ошибка при запросе к AUTH сервису:", error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Внутренняя ошибка сервера при обращении к AUTH сервису",
-    });
-  }
+  return response;
+
+  // try {
+
+  //   return response;
+  // } catch (error) {
+  //   console.error("Ошибка при запросе к AUTH сервису:", error);
+  //   throw createError({
+  //     statusCode: 500,
+  //     statusMessage: "Внутренняя ошибка сервера при обращении к AUTH сервису",
+  //   });
+  // }
 });

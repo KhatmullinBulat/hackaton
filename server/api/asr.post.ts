@@ -20,20 +20,21 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const targetUrl = `${config.public.api.aiBase}/ai/ai/asr`;
 
-  try {
-    const response = await $fetch(targetUrl, {
-      method: "POST",
-      body: fd,
-      params: query,
-    });
-    return response;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
-    console.error("Ошибка при запросе к ASR сервису:", error.data);
-    throw createError({
-      statusCode: error?.statusCode || 500,
-      statusMessage:
-        error?.data?.detail || "Ошибка при обращении к ASR сервису",
-    });
-  }
+  const response = await $fetch(targetUrl, {
+    method: "POST",
+    body: fd,
+    params: query,
+  });
+  return response;
+  // try {
+
+  //   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // } catch (error: any) {
+  //   console.error("Ошибка при запросе к ASR сервису:", error.data);
+  //   throw createError({
+  //     statusCode: error?.statusCode || 500,
+  //     statusMessage:
+  //       error?.data?.detail || "Ошибка при обращении к ASR сервису",
+  //   });
+  // }
 });

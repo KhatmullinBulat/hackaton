@@ -21,21 +21,23 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  try {
-    const response = await $fetch<Chat>(targetUrl, {
-      method: "PATCH",
-      body,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+  const response = await $fetch<Chat>(targetUrl, {
+    method: "PATCH",
+    body,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-    return response;
-  } catch (error) {
-    console.error("Ошибка при запросе к AI сервису:", error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: "Внутренняя ошибка сервера при обращении к AI сервису",
-    });
-  }
+  return response;
+
+  // try {
+
+  // } catch (error) {
+  //   console.error("Ошибка при запросе к AI сервису:", error);
+  //   throw createError({
+  //     statusCode: 500,
+  //     statusMessage: "Внутренняя ошибка сервера при обращении к AI сервису",
+  //   });
+  // }
 });
