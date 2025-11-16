@@ -3,6 +3,16 @@ import VoiceChat from "~/components/VoiceChat.vue";
 
 const isVoiceMode = ref(false);
 const sidebarOpen = ref(false);
+
+const { width } = useScreen();
+
+watch(
+  width,
+  (value) => {
+    sidebarOpen.value = value > 1024;
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -24,7 +34,7 @@ const sidebarOpen = ref(false);
       <SidebarNav
         v-show="sidebarOpen"
         v-model="isVoiceMode"
-        class="lg:flex lg:static top-0 left-0 z-50"
+        class="lg:flex lg:static top-0 left-0 z-50 w-full"
         @close="sidebarOpen = false"
       />
 
@@ -36,7 +46,7 @@ const sidebarOpen = ref(false);
         ☰
       </UButton>
 
-      <div class="flex-1 w-full">
+      <div v-show="!sidebarOpen || width > 1024" class="flex-1 w-full">
         <MainChat v-show="!isVoiceMode" v-model="isVoiceMode" />
         <VoiceChat v-show="isVoiceMode" v-model="isVoiceMode" />
       </div>

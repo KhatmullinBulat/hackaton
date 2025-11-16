@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   );
 
   const config = useRuntimeConfig(event);
-  const targetUrl = `${config.public.api.aiBase}/ai/asr`;
+  const targetUrl = `${config.public.api.aiBase}/ai/ai/asr`;
 
   try {
     const response = await $fetch(targetUrl, {

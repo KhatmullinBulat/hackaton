@@ -181,7 +181,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-full lg:max-w-[450px] h-full flex flex-col gap-6 py-6 px-3">
+  <div class="lg:max-w-[450px] h-full flex flex-col gap-6 py-6 px-3">
     <UCard
       :ui="{
         body: 'p-4 sm:p-4',

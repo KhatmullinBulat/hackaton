@@ -2,7 +2,7 @@ import { defineEventHandler, sendStream, readBody, setHeader } from "h3";
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
-  const targetUrl = `${config.public.api.aiBase}/ai/tts`;
+  const targetUrl = `${config.public.api.aiBase}/ai/ai/tts`;
 
   try {
     const body = await readBody(event);

@@ -5,7 +5,7 @@ interface GptResponse {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
-  const targetUrl = `${config.public.api.aiBase}/ai/interpret`;
+  const targetUrl = `${config.public.api.aiBase}/ai/ai/interpret`;
 
   const body = await readBody(event);
 
