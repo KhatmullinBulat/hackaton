@@ -151,7 +151,9 @@ watch(selectedChat, async (newSelectedChat, oldSelectedChat) => {
         class="size-full flex flex-col justify-center items-center gap-6"
       >
         <h3 class="text-4xl">Привет!</h3>
-        <p class="text-2xl">Расскажите, какой сон вы видели сегодня?</p>
+        <p class="text-2xl text-center">
+          Расскажите, какой сон вы видели сегодня?
+        </p>
       </div>
     </Transition>
 
@@ -178,7 +180,7 @@ watch(selectedChat, async (newSelectedChat, oldSelectedChat) => {
     <div class="mt-auto flex flex-col items-center">
       <UChatPrompt
         v-model="inputText"
-        placeholder="Введите свое сообщение здесь..."
+        placeholder="Введите..."
         @submit="handleSubmit"
       >
         <div class="flex gap-2">

@@ -2,6 +2,7 @@
 import VoiceChat from "~/components/VoiceChat.vue";
 
 const isVoiceMode = ref(false);
+const sidebarOpen = ref(false);
 </script>
 
 <template>
@@ -20,10 +21,25 @@ const isVoiceMode = ref(false);
     />
 
     <div class="size-full flex gap-8 z-10">
-      <SidebarNav v-model="isVoiceMode" />
+      <SidebarNav
+        v-show="sidebarOpen"
+        v-model="isVoiceMode"
+        class="lg:flex lg:static top-0 left-0 z-50"
+        @close="sidebarOpen = false"
+      />
 
-      <MainChat v-show="!isVoiceMode" v-model="isVoiceMode" />
-      <VoiceChat v-show="isVoiceMode" v-model="isVoiceMode" />
+      <UButton
+        color="neutral"
+        class="lg:hidden fixed top-13 right-4 z-30"
+        @click="sidebarOpen = !sidebarOpen"
+      >
+        ☰
+      </UButton>
+
+      <div class="flex-1 w-full">
+        <MainChat v-show="!isVoiceMode" v-model="isVoiceMode" />
+        <VoiceChat v-show="isVoiceMode" v-model="isVoiceMode" />
+      </div>
     </div>
   </div>
 </template>

@@ -9,6 +9,7 @@ import type {
 } from "~/composables/useGptApi";
 
 const isVoiceMode = defineModel<boolean>();
+const emit = defineEmits(["close"]);
 
 const { userId } = useAuthApi();
 const {
@@ -180,7 +181,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="max-w-[450px] size-full flex flex-col gap-6 p-8">
+  <div class="w-full lg:max-w-[450px] h-full flex flex-col gap-6 py-6 px-3">
     <UCard
       :ui="{
         body: 'p-4 sm:p-4',
@@ -196,17 +197,26 @@ onMounted(() => {
           }"
         />
 
-        <UModal title="Настройки">
-          <UButton
-            :icon="SettingsIcon"
-            color="neutral"
-            class="cursor-pointer"
-          />
+        <div class="flex items-center gap-2">
+          <UModal title="Настройки">
+            <UButton
+              :icon="SettingsIcon"
+              color="neutral"
+              class="cursor-pointer"
+            />
 
-          <template #body>
-            <UColorModeSwitch />
-          </template>
-        </UModal>
+            <template #body>
+              <UColorModeSwitch />
+            </template>
+          </UModal>
+
+          <UButton
+            color="neutral"
+            class="lg:hidden h-full"
+            icon="lucide:circle-x"
+            @click="emit('close')"
+          />
+        </div>
       </div>
     </UCard>
 
