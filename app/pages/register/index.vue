@@ -40,14 +40,12 @@ const handleSubmit = async (payload: FormSubmitEvent<Schema>) => {
   error.value = null;
 
   try {
-    // ШАГ 1: Получаем экземпляр useFetch с его состоянием и функцией execute.
-    // Важно: sendMessage НЕ должна быть async (исправим это в следующем шаге).
     const response = await register({
       email: payload.data.email,
       password: payload.data.password,
     });
 
-    if (response && response.AccessToken) {
+    if (response) {
       toast.add({
         color: "success",
         title: "Успешная регистрация!",
