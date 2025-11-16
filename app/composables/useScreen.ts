@@ -1,11 +1,11 @@
 export function useScreen() {
-  const width = ref(process.client ? window.innerWidth : 0);
+  const width = ref(import.meta.client ? window.innerWidth : 0);
 
   function update() {
     width.value = window.innerWidth;
   }
 
-  if (process.client) {
+  if (import.meta.client) {
     window.addEventListener("resize", update);
     onBeforeUnmount(() => {
       window.removeEventListener("resize", update);
