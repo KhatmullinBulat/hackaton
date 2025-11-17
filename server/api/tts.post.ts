@@ -25,7 +25,6 @@ export default defineEventHandler(async (event) => {
     "Content-Type",
     pythonResponse.headers.get("Content-Type") || "audio/mpeg"
   );
-  setHeader(event, "Transfer-Encoding", "chunked");
 
   return sendStream(event, pythonResponse.body);
 
