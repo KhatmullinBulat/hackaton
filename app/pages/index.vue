@@ -136,14 +136,14 @@ onUnmounted(() => {
         <div
           class="mx-4 flex place-items-center gap-[20px] text-base max-md:w-full max-md:flex-col max-md:place-content-center"
         >
-          <a
+          <NuxtLink
             href="/chat"
             aria-label="signup"
             class="rounded-full bg-secondary px-3 py-2 text-white transition-transform duration-[0.3s] hover:translate-x-2"
           >
             <span>Начать</span>
             <i class="bi bi-arrow-right"></i>
-          </a>
+          </NuxtLink>
         </div>
       </div>
       <button
@@ -182,12 +182,15 @@ onUnmounted(() => {
           <div
             class="reveal-up mt-4 flex place-items-center gap-4 overflow-hidden p-2"
           >
-            <a
-              class="btn transition-transform duration-[0.3s] hover:scale-x-[1.03]"
+            <NuxtLink
               href="/chat"
+              aria-label="signup"
+              class="btn transition-transform duration-300 hover:scale-x-[1.03]"
             >
-              Начать
-            </a>
+              <span>Начать</span>
+              <i class="bi bi-arrow-right"></i>
+            </NuxtLink>
+
             <a
               class="btn !bg-white !text-secondary transition-transform duration-[0.3s] hover:scale-x-[1.03]"
               href=""
@@ -804,9 +807,12 @@ onUnmounted(() => {
             class="input h-full w-full p-2 outline-none"
             placeholder="почта"
           />
-          <a class="btn transition-colors duration-[0.3s]" href="/register">
+          <NuxtLink
+            class="btn transition-colors duration-[0.3s]"
+            href="/register"
+          >
             Зарегистрироваться
-          </a>
+          </NuxtLink>
         </div>
       </div>
     </section>
