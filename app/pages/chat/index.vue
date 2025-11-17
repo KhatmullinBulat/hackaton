@@ -5,6 +5,7 @@ const isVoiceMode = ref(false);
 const sidebarOpen = ref(false);
 
 const { width } = useScreen();
+// const { userId } = useAuthApi();
 
 watch(
   width,
@@ -13,6 +14,22 @@ watch(
   },
   { immediate: true }
 );
+
+definePageMeta({
+  middleware: ["auth-guard"],
+});
+
+// definePageMeta({
+//   middleware: [
+//     function () {
+//       const isAuth = userId.value?.length;
+
+//       if (!isAuth) {
+//         return navigateTo("/login");
+//       }
+//     },
+//   ],
+// });
 </script>
 
 <template>
