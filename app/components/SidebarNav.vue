@@ -77,13 +77,22 @@ async function handleCreateFolder() {
     isFolderModalOpen.value = false;
     console.log("Список папок получен:", folder, chat);
   } catch (e: unknown) {
-    console.error("Ошибка при получении папок:", e);
-    error.value = e as string;
+    console.error("Registration error:", e);
+
+    let message = "Что-то пошло не так.";
+
+    if (e instanceof Error) {
+      message = e.message;
+    } else if (typeof e === "string") {
+      message = e;
+    }
+
     toast.add({
       color: "error",
-      title: "Ошибка",
-      description: error.value,
+      title: "Ошибка входа",
+      description: message,
     });
+    error.value = message;
   } finally {
     pending.value = false;
   }

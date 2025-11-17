@@ -20,24 +20,26 @@ export default defineEventHandler(async (event) => {
   const targetUrl = `${config.public.api.aiBase}/chats/${chatId}/messages`;
 
   const query = getQuery(event);
+  try {
+    const response = await $fetch<Chat>(targetUrl, {
+      method: "GET",
+      params: query,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  const response = await $fetch<Chat>(targetUrl, {
-    method: "GET",
-    params: query,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+    return response;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("External login API error:", error);
 
-  return response;
+    const message = error?.data?.message || error?.message || "Unknown error";
 
-  // try {
-
-  // } catch (error) {
-  //   console.error("Ошибка при запросе к AI сервису:", error);
-  //   throw createError({
-  //     statusCode: 500,
-  //     statusMessage: "Внутренняя ошибка сервера при обращении к AI сервису",
-  //   });
-  // }
+    throw createError({
+      statusCode: error?.statusCode || 400,
+      statusMessage: message,
+      data: error?.data || null,
+    });
+  }
 });

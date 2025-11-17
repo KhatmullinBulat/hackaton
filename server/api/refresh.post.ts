@@ -5,30 +5,39 @@ export interface RefreshResponse {
   UserID: string;
 }
 
+export interface RegisterResponse {
+  AccessToken: string;
+  RefreshToken: string;
+  ExpiresAt: string;
+  UserID: string;
+}
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig(event);
   const targetUrl = `${config.public.api.authBase}/auth/refresh`;
 
   const body = await readBody(event);
 
-  const response = await $fetch<RefreshResponse>(targetUrl, {
-    method: "POST",
-    body: body,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await $fetch<RefreshResponse>(targetUrl, {
+      method: "POST",
+      body: body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  return response;
+    return response;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("External login API error:", error);
 
-  // try {
+    const message = error?.data?.message || error?.message || "Unknown error";
 
-  //   return response;
-  // } catch (error) {
-  //   console.error("Ошибка при запросе к AUTH сервису:", error);
-  //   throw createError({
-  //     statusCode: 500,
-  //     statusMessage: "Внутренняя ошибка сервера при обращении к AUTH сервису",
-  //   });
-  // }
+    throw createError({
+      statusCode: error?.statusCode || 400,
+      statusMessage: message,
+      data: error?.data || null,
+    });
+  }
 });

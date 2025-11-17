@@ -5,7 +5,6 @@ const isVoiceMode = ref(false);
 const sidebarOpen = ref(false);
 
 const { width } = useScreen();
-// const { userId } = useAuthApi();
 
 watch(
   width,
@@ -18,18 +17,6 @@ watch(
 definePageMeta({
   middleware: ["auth-guard"],
 });
-
-// definePageMeta({
-//   middleware: [
-//     function () {
-//       const isAuth = userId.value?.length;
-
-//       if (!isAuth) {
-//         return navigateTo("/login");
-//       }
-//     },
-//   ],
-// });
 </script>
 
 <template>
@@ -63,7 +50,10 @@ definePageMeta({
         ☰
       </UButton>
 
-      <div v-show="!sidebarOpen || width > 1024" class="flex-1 w-full">
+      <div
+        v-show="!sidebarOpen || width > 1024"
+        class="flex-1 w-full justify-center items-center"
+      >
         <MainChat v-show="!isVoiceMode" v-model="isVoiceMode" />
         <VoiceChat v-show="isVoiceMode" v-model="isVoiceMode" />
       </div>

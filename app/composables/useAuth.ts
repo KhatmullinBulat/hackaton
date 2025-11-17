@@ -21,67 +21,76 @@ export const useAuthApi = () => {
   const isAuthenticated = computed(() => !!accessToken.value);
 
   const login = async (payload: RequestPayload) => {
-    const response = await $fetch<string>("/api/login", {
-      method: "POST",
-      body: payload,
-    });
+    try {
+      const response = await $fetch<string>("/api/login", {
+        method: "POST",
+        body: payload,
+      });
 
-    const data: AuthResponse = JSON.parse(response);
+      const data: AuthResponse = JSON.parse(response);
 
-    if (!data) return null;
+      if (!data) return null;
 
-    // Обновляем состояния после успешного ответа
-    accessToken.value = data.access_token;
-    refreshToken.value = data.refresh_token;
-    userId.value = data.user_id;
-    expiresAt.value = new Date(data.expires_at).getTime();
+      accessToken.value = data.access_token;
+      refreshToken.value = data.refresh_token;
+      userId.value = data.user_id;
+      expiresAt.value = new Date(data.expires_at).getTime();
 
-    saveToLocalStorage();
-
-    return data;
+      saveToLocalStorage();
+      return data;
+    } catch (error) {
+      console.error("Login error:", error);
+      throw error;
+    }
   };
 
-  // Функция register теперь возвращает объект, содержащий useFetch и функцию для выполнения
   const register = async (payload: RequestPayload) => {
-    const response = await $fetch<string>("/api/register", {
-      method: "POST",
-      body: payload,
-    });
+    try {
+      const response = await $fetch<string>("/api/register", {
+        method: "POST",
+        body: payload,
+      });
 
-    const data: AuthResponse = JSON.parse(response);
+      const data: AuthResponse = JSON.parse(response);
 
-    if (!data) return null;
+      if (!data) return null;
 
-    // Обновляем состояния после успешного ответа
-    accessToken.value = data.access_token;
-    refreshToken.value = data.refresh_token;
-    userId.value = data.user_id;
-    expiresAt.value = new Date(data.expires_at).getTime();
+      accessToken.value = data.access_token;
+      refreshToken.value = data.refresh_token;
+      userId.value = data.user_id;
+      expiresAt.value = new Date(data.expires_at).getTime();
 
-    saveToLocalStorage();
-
-    return data; // Возвращаем ответ для обработки в вызывающем коде
+      saveToLocalStorage();
+      return data;
+    } catch (error) {
+      console.error("Register error:", error);
+      throw error;
+    }
   };
 
-  async function refresh() {
+  const refresh = async () => {
     if (!refreshToken.value) return null;
 
-    const response = await $fetch<string>("/api/refresh", {
-      method: "POST",
-      body: { RefreshToken: refreshToken.value },
-    });
+    try {
+      const response = await $fetch<string>("/api/refresh", {
+        method: "POST",
+        body: { RefreshToken: refreshToken.value },
+      });
 
-    const data: AuthResponse = JSON.parse(response);
+      const data: AuthResponse = JSON.parse(response);
 
-    accessToken.value = data.access_token;
-    refreshToken.value = data.refresh_token;
-    userId.value = data.user_id;
-    expiresAt.value = new Date(data.expires_at).getTime();
+      accessToken.value = data.access_token;
+      refreshToken.value = data.refresh_token;
+      userId.value = data.user_id;
+      expiresAt.value = new Date(data.expires_at).getTime();
 
-    saveToLocalStorage();
-
-    return data;
-  }
+      saveToLocalStorage();
+      return data;
+    } catch (error) {
+      console.error("Refresh error:", error);
+      throw error;
+    }
+  };
 
   function saveToLocalStorage() {
     if (import.meta.client) {

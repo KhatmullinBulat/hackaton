@@ -35,7 +35,22 @@ async function handleRename() {
       throw new Error("В ответе на вход отсутствуют обязательные поля");
     }
   } catch (e: unknown) {
-    console.error(e);
+    console.error("Registration error:", e);
+
+    let message = "Что-то пошло не так.";
+
+    // если это FetchError или Error, возьмём нормальный текст
+    if (e instanceof Error) {
+      message = e.message;
+    } else if (typeof e === "string") {
+      message = e;
+    }
+
+    toast.add({
+      color: "error",
+      title: "Ошибка входа",
+      description: message,
+    });
   }
 }
 </script>

@@ -52,18 +52,26 @@ const handleSubmit = async (payload: FormSubmitEvent<Schema>) => {
       });
       navigateTo("/chat");
     } else {
-      // Handle unexpected response structure if needed
       throw new Error("В ответе на регистрацию отсутствуют обязательные поля");
     }
   } catch (e: unknown) {
     console.error("Registration error:", e);
-    // e будет содержать ошибку из fetchError.value или другую ошибку сети.
-    error.value = e;
+
+    let message = "Что-то пошло не так.";
+
+    if (e instanceof Error) {
+      message = e.message;
+    } else if (typeof e === "string") {
+      message = e;
+    }
+
     toast.add({
       color: "error",
-      title: "Что-то пошло не так.",
-      description: error.value as string,
+      title: "Ошибка входа",
+      description: message,
     });
+
+    error.value = message;
   } finally {
     pending.value = false;
   }

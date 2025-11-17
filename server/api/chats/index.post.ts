@@ -12,23 +12,26 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  const response = await $fetch<Chat>(targetUrl, {
-    method: "POST",
-    body: body,
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  try {
+    const response = await $fetch<Chat>(targetUrl, {
+      method: "POST",
+      body: body,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  return response;
+    return response;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("External login API error:", error);
 
-  // try {
+    const message = error?.data?.message || error?.message || "Unknown error";
 
-  // } catch (error) {
-  //   console.error("Ошибка при запросе к AI сервису:", error);
-  //   throw createError({
-  //     statusCode: 500,
-  //     statusMessage: "Внутренняя ошибка сервера при обращении к AI сервису",
-  //   });
-  // }
+    throw createError({
+      statusCode: error?.statusCode || 400,
+      statusMessage: message,
+      data: error?.data || null,
+    });
+  }
 });

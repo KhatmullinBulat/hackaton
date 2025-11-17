@@ -33,6 +33,8 @@ const messageStatus = computed(() => {
 });
 
 const handleSubmit = async () => {
+  if (pending.value) return;
+
   if (!userId.value) return;
 
   if (!selectedChat.value) {
@@ -181,6 +183,7 @@ watch(selectedChat, async (newSelectedChat, oldSelectedChat) => {
       <UChatPrompt
         v-model="inputText"
         placeholder="Введите..."
+        :loading="pending"
         @submit="handleSubmit"
       >
         <div class="flex gap-2">

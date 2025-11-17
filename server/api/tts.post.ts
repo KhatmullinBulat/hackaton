@@ -6,43 +6,68 @@ export default defineEventHandler(async (event) => {
 
   const body = await readBody(event);
 
-  const fetchOptions: RequestInit = {
-    method: event.method,
-    body: JSON.stringify(body),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  };
+  try {
+    const fetchOptions: RequestInit = {
+      method: event.method,
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
 
-  const pythonResponse = await fetch(targetUrl, fetchOptions);
+    const response = await fetch(targetUrl, fetchOptions);
 
-  if (!pythonResponse.ok || !pythonResponse.body) {
-    throw new Error("Ошибка от Python бэкенда: " + pythonResponse.statusText);
+    if (!response.ok || !response.body) {
+      throw new Error("Ошибка от Python бэкенда: " + response.statusText);
+    }
+
+    setHeader(
+      event,
+      "Content-Type",
+      response.headers.get("Content-Type") || "audio/mpeg"
+    );
+
+    return sendStream(event, response.body);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    console.error("External login API error:", error);
+
+    const message = error?.data?.message || error?.message || "Unknown error";
+
+    throw createError({
+      statusCode: error?.statusCode || 400,
+      statusMessage: message,
+      data: error?.data || null,
+    });
   }
-
-  setHeader(
-    event,
-    "Content-Type",
-    pythonResponse.headers.get("Content-Type") || "audio/mpeg"
-  );
-
-  return sendStream(event, pythonResponse.body);
-
-  // try {
-  //   if (!pythonResponse.ok || !pythonResponse.body) {
-  //     throw new Error("Ошибка от Python бэкенда: " + pythonResponse.statusText);
-  //   }
-
-  //   setHeader(
-  //     event,
-  //     "Content-Type",
-  //     pythonResponse.headers.get("Content-Type") || "audio/mpeg"
-  //   );
-  //   setHeader(event, "Transfer-Encoding", "chunked");
-
-  //   return sendStream(event, pythonResponse.body);
-  // } catch (error) {
-  //   console.error("Ошибка прокси:", error);
-  //   return { error: "Не удалось получить стрим: " + (error as Error).message };
-  // }
 });
+
+// export default defineEventHandler(async (event) => {
+//   const config = useRuntimeConfig(event);
+//   const targetUrl = `${config.public.api.aiBase}/ai/ai/tts`;
+
+//   const body = await readBody(event);
+
+//   const fetchOptions: RequestInit = {
+//     method: event.method,
+//     body: JSON.stringify(body),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   };
+
+//   const pythonResponse = await fetch(targetUrl, fetchOptions);
+
+//   if (!pythonResponse.ok || !pythonResponse.body) {
+//     throw new Error("Ошибка от Python бэкенда: " + pythonResponse.statusText);
+//   }
+
+//   setHeader(
+//     event,
+//     "Content-Type",
+//     pythonResponse.headers.get("Content-Type") || "audio/mpeg"
+//   );
+
+//   return sendStream(event, pythonResponse.body);
+// });
