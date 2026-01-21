@@ -1,6 +1,6 @@
-# Nuxt Minimal Starter
+# Проект с хакатона (Nuxt.js):
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Разработка MVP в сжатые сроки, фокус на функциональности и командной работе. Код содержит компромиссы, связанные с ограничением по времени.
 
 ## Setup
 
@@ -71,5 +71,3 @@ yarn preview
 # bun
 bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
